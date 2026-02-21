@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { soils } from "@/data/soils";
 import { getResearchBySoilId } from "@/lib/userResearch";
-import { ArrowLeft, Plus, User, Calendar } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 
 const SoilResearchList = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,21 +15,8 @@ const SoilResearchList = () => {
 
   const researches = getResearchBySoilId(soil.id);
 
-  const fieldLabels: { key: string; label: string }[] = [
-    { key: "materialParental", label: "Material parental" },
-    { key: "colorTipico", label: "Color típico" },
-    { key: "retencionAgua", label: "Retención de agua" },
-    { key: "drenaje", label: "Drenaje" },
-    { key: "climaTipico", label: "Clima típico" },
-    { key: "vegetacion", label: "Vegetación" },
-    { key: "usoComun", label: "Uso común" },
-    { key: "limitantes", label: "Limitantes" },
-    { key: "distribucion", label: "Distribución" },
-  ];
-
   return (
     <div className="app-shell flex flex-col">
-      {/* Header */}
       <header className="gradient-header pt-safe flex-shrink-0">
         <div className="flex items-center gap-3 px-4 py-4">
           <button
@@ -47,9 +34,8 @@ const SoilResearchList = () => {
         </div>
       </header>
 
-      {/* Content */}
       <main className="flex-1 overflow-y-auto scrollbar-hide">
-        <div className="px-4 py-4 pb-safe">
+        <div className="px-3 py-4 pb-safe">
           {/* Add button */}
           <button
             onClick={() => navigate(`/soil/${soil.id}/investigaciones/nueva`)}
@@ -68,45 +54,46 @@ const SoilResearchList = () => {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {researches.map((r, idx) => (
-                <div key={r.id} className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-                  {/* Research header */}
-                  <div className="bg-muted px-4 py-2.5 flex items-center gap-2 border-b border-border">
-                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="w-3.5 h-3.5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-foreground text-xs font-body font-semibold truncate">{r.autor}</p>
-                      <div className="flex items-center gap-1 text-muted-foreground">
-                        <Calendar className="w-3 h-3" />
-                        <p className="text-xs font-body">{r.fecha}</p>
-                      </div>
-                    </div>
-                    <span className="text-muted-foreground text-xs font-body">#{idx + 1}</span>
-                  </div>
-
-                  {/* Research data */}
-                  <div className="px-4 py-3 space-y-2">
-                    {fieldLabels.map((f) => {
-                      const value = (r as unknown as Record<string, string>)[f.key];
-                      if (!value) return null;
-                      return (
-                        <div key={f.key}>
-                          <p className="text-muted-foreground text-xs font-body font-semibold">{f.label}:</p>
-                          <p className="text-foreground text-sm font-body leading-relaxed">{value}</p>
-                        </div>
-                      );
-                    })}
-                    {r.notasAdicionales && (
-                      <div className="mt-2 pt-2 border-t border-border">
-                        <p className="text-muted-foreground text-xs font-body font-semibold">Notas adicionales:</p>
-                        <p className="text-foreground text-sm font-body italic leading-relaxed">{r.notasAdicionales}</p>
+            <div className="grid grid-cols-2 gap-3">
+              {researches.map((r) => {
+                const hasImage = r.imagenes && r.imagenes.length > 0;
+                return (
+                  <button
+                    key={r.id}
+                    onClick={() => navigate(`/soil/${soil.id}/investigaciones/${r.id}`)}
+                    className="no-tap group relative rounded-2xl overflow-hidden shadow-card active:scale-95 transition-all duration-200"
+                    style={{ height: 180 }}
+                  >
+                    {/* Image or placeholder */}
+                    {hasImage ? (
+                      <img
+                        src={r.imagenes[0]}
+                        alt={r.nombreInvestigacion}
+                        className="absolute inset-0 w-full h-full object-cover group-active:brightness-90 transition-all duration-200"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center">
+                        <span className="text-5xl opacity-40">🔬</span>
                       </div>
                     )}
-                  </div>
-                </div>
-              ))}
+                    {/* Gradient overlay */}
+                    <div className="gradient-card absolute inset-0" />
+                    {/* Name & author */}
+                    <div className="absolute bottom-0 left-0 right-0 p-3">
+                      <p className="font-display text-sm font-semibold text-white leading-tight drop-shadow-lg line-clamp-2">
+                        {r.nombreInvestigacion || soil.nombre}
+                      </p>
+                      <p className="text-white/70 text-xs mt-0.5 font-body leading-tight truncate">
+                        por {r.autor}
+                      </p>
+                    </div>
+                    {/* Corner badge */}
+                    <div className="absolute top-2 right-2 bg-black/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+                      <span className="text-white/90 text-xs font-body font-medium">Usuario</span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
