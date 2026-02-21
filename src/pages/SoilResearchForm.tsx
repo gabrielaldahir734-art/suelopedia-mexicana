@@ -1,9 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { soils } from "@/data/soils";
-import { saveResearch, UserResearch } from "@/lib/userResearch";
+import { saveResearch, UserResearch, GeoLocation } from "@/lib/userResearch";
 import { ArrowLeft, Send } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import LocationPicker from "@/components/LocationPicker";
+import ImagePicker from "@/components/ImagePicker";
 
 const fields = [
   { key: "materialParental", label: "Material parental", placeholder: "Ej: ceniza volcánica" },
@@ -26,6 +28,7 @@ const SoilResearchForm = () => {
 
   const [form, setForm] = useState<Record<string, string>>({
     autor: "",
+    nombreInvestigacion: "",
     materialParental: "",
     colorTipico: "",
     retencionAgua: "",
@@ -38,6 +41,9 @@ const SoilResearchForm = () => {
     notasAdicionales: "",
   });
 
+  const [ubicacion, setUbicacion] = useState<GeoLocation | null>(null);
+  const [imagenes, setImagenes] = useState<string[]>([]);
+
   if (!soil) {
     navigate("/");
     return null;
@@ -48,13 +54,16 @@ const SoilResearchForm = () => {
   };
 
   const handleSubmit = () => {
-    // Validate required fields
-    const required = fields.filter(f => f.key !== "notasAdicionales");
-    const missing = required.filter(f => !form[f.key]?.trim());
     if (!form.autor?.trim()) {
       toast({ title: "Campo requerido", description: "Escribe tu nombre o alias", variant: "destructive" });
       return;
     }
+    if (!form.nombreInvestigacion?.trim()) {
+      toast({ title: "Campo requerido", description: "Escribe un nombre para tu investigación", variant: "destructive" });
+      return;
+    }
+    const required = fields.filter(f => f.key !== "notasAdicionales");
+    const missing = required.filter(f => !form[f.key]?.trim());
     if (missing.length > 0) {
       toast({ title: "Campos incompletos", description: `Falta: ${missing.map(f => f.label).join(", ")}`, variant: "destructive" });
       return;
@@ -65,6 +74,7 @@ const SoilResearchForm = () => {
       soilId: soil.id,
       fecha: new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" }),
       autor: form.autor.trim(),
+      nombreInvestigacion: form.nombreInvestigacion.trim(),
       materialParental: form.materialParental.trim(),
       colorTipico: form.colorTipico.trim(),
       retencionAgua: form.retencionAgua.trim(),
@@ -75,6 +85,8 @@ const SoilResearchForm = () => {
       limitantes: form.limitantes.trim(),
       distribucion: form.distribucion.trim(),
       notasAdicionales: form.notasAdicionales.trim(),
+      ubicacion,
+      imagenes,
     };
 
     saveResearch(research);
@@ -84,7 +96,6 @@ const SoilResearchForm = () => {
 
   return (
     <div className="app-shell flex flex-col">
-      {/* Header */}
       <header className="gradient-header pt-safe flex-shrink-0">
         <div className="flex items-center gap-3 px-4 py-4">
           <button
@@ -102,7 +113,6 @@ const SoilResearchForm = () => {
         </div>
       </header>
 
-      {/* Form */}
       <main className="flex-1 overflow-y-auto scrollbar-hide">
         <div className="px-4 py-4 pb-safe">
           <div className="bg-primary/5 border border-primary/15 rounded-xl px-4 py-3 mb-5">
@@ -129,6 +139,31 @@ const SoilResearchForm = () => {
             />
           </div>
 
+          {/* Research name */}
+          <div className="mb-4">
+            <label className="text-foreground text-xs font-body font-semibold mb-1.5 block">
+              🔬 Nombre de la investigación
+            </label>
+            <input
+              type="text"
+              value={form.nombreInvestigacion}
+              onChange={(e) => handleChange("nombreInvestigacion", e.target.value)}
+              placeholder="Ej: Análisis del Andosol en Sierra Norte"
+              maxLength={150}
+              className="w-full bg-card border border-border rounded-xl px-4 py-3 text-foreground text-sm font-body placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+            />
+          </div>
+
+          {/* Image picker */}
+          <div className="mb-4">
+            <ImagePicker images={imagenes} onImagesChange={setImagenes} max={3} />
+          </div>
+
+          {/* GPS Location */}
+          <div className="mb-4">
+            <LocationPicker location={ubicacion} onLocationChange={setUbicacion} />
+          </div>
+
           {/* Fields */}
           {fields.map((field) => (
             <div key={field.key} className="mb-4">
@@ -146,7 +181,6 @@ const SoilResearchForm = () => {
             </div>
           ))}
 
-          {/* Submit */}
           <button
             onClick={handleSubmit}
             className="no-tap w-full bg-primary text-primary-foreground rounded-xl py-3.5 font-body font-semibold text-sm flex items-center justify-center gap-2 active:scale-98 transition-transform shadow-md mb-4"
