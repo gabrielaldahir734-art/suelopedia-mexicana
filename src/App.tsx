@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import SoilMenu from "./pages/SoilMenu";
 import SoilInfo from "./pages/SoilInfo";
+import SoilResearchList from "./pages/SoilResearchList";
+import SoilResearchForm from "./pages/SoilResearchForm";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +22,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/soil/:id" element={<SoilMenu />} />
+            <Route path="/soil/:id/investigaciones" element={<SoilResearchList />} />
+            <Route path="/soil/:id/investigaciones/nueva" element={<SoilResearchForm />} />
             <Route path="/soil/:id/:optionId" element={<SoilInfo />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

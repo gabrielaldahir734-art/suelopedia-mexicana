@@ -55,6 +55,19 @@ const SoilMenu = () => {
                 <span className="text-muted-foreground/50 flex-shrink-0">›</span>
               </button>
             ))}
+
+            {/* Community research option */}
+            <button
+              onClick={() => navigate(`/soil/${soil.id}/investigaciones`)}
+              className="no-tap w-full flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 active:scale-98 active:bg-primary/10 transition-all duration-150 shadow-sm text-left"
+            >
+              <span className="text-2xl w-8 text-center flex-shrink-0">📚</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-body font-semibold text-primary text-sm leading-tight">Más Información</p>
+                <p className="text-muted-foreground text-xs mt-0.5">Investigaciones de usuarios</p>
+              </div>
+              <span className="text-primary/50 flex-shrink-0">›</span>
+            </button>
           </div>
 
           <div className="mt-4 mb-2">
