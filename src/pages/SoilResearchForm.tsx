@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { soils } from "@/data/soils";
 import { saveResearch, UserResearch, GeoLocation } from "@/lib/userResearch";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import LocationPicker from "@/components/LocationPicker";
@@ -43,6 +43,7 @@ const SoilResearchForm = () => {
 
   const [ubicacion, setUbicacion] = useState<GeoLocation | null>(null);
   const [imagenes, setImagenes] = useState<string[]>([]);
+  const [sending, setSending] = useState(false);
 
   if (!soil) {
     navigate("/");
@@ -53,7 +54,7 @@ const SoilResearchForm = () => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.autor?.trim()) {
       toast({ title: "Campo requerido", description: "Escribe tu nombre o alias", variant: "destructive" });
       return;
@@ -69,8 +70,10 @@ const SoilResearchForm = () => {
       return;
     }
 
+    setSending(true);
+
     const research: UserResearch = {
-      id: Date.now().toString(),
+      id: "",
       soilId: soil.id,
       fecha: new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" }),
       autor: form.autor.trim(),
@@ -89,9 +92,15 @@ const SoilResearchForm = () => {
       imagenes,
     };
 
-    saveResearch(research);
-    toast({ title: "¡Investigación guardada!", description: "Tu aporte ya aparece en la sección de investigaciones." });
-    navigate(`/soil/${soil.id}/investigaciones`);
+    const success = await saveResearch(research);
+    setSending(false);
+
+    if (success) {
+      toast({ title: "¡Investigación guardada!", description: "Tu aporte ya aparece en la sección de investigaciones." });
+      navigate(`/soil/${soil.id}/investigaciones`);
+    } else {
+      toast({ title: "Error", description: "No se pudo guardar. Intenta de nuevo.", variant: "destructive" });
+    }
   };
 
   return (
@@ -183,10 +192,11 @@ const SoilResearchForm = () => {
 
           <button
             onClick={handleSubmit}
-            className="no-tap w-full bg-primary text-primary-foreground rounded-xl py-3.5 font-body font-semibold text-sm flex items-center justify-center gap-2 active:scale-98 transition-transform shadow-md mb-4"
+            disabled={sending}
+            className="no-tap w-full bg-primary text-primary-foreground rounded-xl py-3.5 font-body font-semibold text-sm flex items-center justify-center gap-2 active:scale-98 transition-transform shadow-md mb-4 disabled:opacity-60"
           >
-            <Send className="w-4 h-4" />
-            Enviar Investigación
+            {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {sending ? "Enviando..." : "Enviar Investigación"}
           </button>
         </div>
       </main>

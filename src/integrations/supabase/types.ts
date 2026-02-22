@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      user_research: {
+        Row: {
+          altitud: number | null
+          autor: string
+          clima_tipico: string
+          color_tipico: string
+          created_at: string
+          distribucion: string
+          drenaje: string
+          fecha: string
+          id: string
+          imagenes: string[]
+          latitud: number | null
+          limitantes: string
+          longitud: number | null
+          material_parental: string
+          nombre_investigacion: string
+          notas_adicionales: string
+          retencion_agua: string
+          soil_id: string
+          ubicacion_timestamp: string | null
+          uso_comun: string
+          vegetacion: string
+        }
+        Insert: {
+          altitud?: number | null
+          autor: string
+          clima_tipico?: string
+          color_tipico?: string
+          created_at?: string
+          distribucion?: string
+          drenaje?: string
+          fecha: string
+          id?: string
+          imagenes?: string[]
+          latitud?: number | null
+          limitantes?: string
+          longitud?: number | null
+          material_parental?: string
+          nombre_investigacion: string
+          notas_adicionales?: string
+          retencion_agua?: string
+          soil_id: string
+          ubicacion_timestamp?: string | null
+          uso_comun?: string
+          vegetacion?: string
+        }
+        Update: {
+          altitud?: number | null
+          autor?: string
+          clima_tipico?: string
+          color_tipico?: string
+          created_at?: string
+          distribucion?: string
+          drenaje?: string
+          fecha?: string
+          id?: string
+          imagenes?: string[]
+          latitud?: number | null
+          limitantes?: string
+          longitud?: number | null
+          material_parental?: string
+          nombre_investigacion?: string
+          notas_adicionales?: string
+          retencion_agua?: string
+          soil_id?: string
+          ubicacion_timestamp?: string | null
+          uso_comun?: string
+          vegetacion?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,19 +1,28 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { soils } from "@/data/soils";
-import { getResearchBySoilId } from "@/lib/userResearch";
-import { ArrowLeft, Plus } from "lucide-react";
+import { getResearchBySoilId, UserResearch } from "@/lib/userResearch";
+import { ArrowLeft, Plus, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const SoilResearchList = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const soil = soils.find((s) => s.id === id);
+  const [researches, setResearches] = useState<UserResearch[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!soil) return;
+    getResearchBySoilId(soil.id).then((data) => {
+      setResearches(data);
+      setLoading(false);
+    });
+  }, [soil]);
 
   if (!soil) {
     navigate("/");
     return null;
   }
-
-  const researches = getResearchBySoilId(soil.id);
 
   return (
     <div className="app-shell flex flex-col">
@@ -36,7 +45,6 @@ const SoilResearchList = () => {
 
       <main className="flex-1 overflow-y-auto scrollbar-hide">
         <div className="px-3 py-4 pb-safe">
-          {/* Add button */}
           <button
             onClick={() => navigate(`/soil/${soil.id}/investigaciones/nueva`)}
             className="no-tap w-full bg-primary/10 border border-primary/20 text-primary rounded-xl py-3 font-body font-semibold text-sm flex items-center justify-center gap-2 active:scale-98 transition-transform mb-4"
@@ -45,7 +53,12 @@ const SoilResearchList = () => {
             Agregar mi investigación
           </button>
 
-          {researches.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
+              <p className="text-muted-foreground text-xs font-body">Cargando investigaciones...</p>
+            </div>
+          ) : researches.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-4xl mb-3">🔬</p>
               <p className="text-foreground font-body font-semibold text-sm">Aún no hay investigaciones</p>
@@ -64,7 +77,6 @@ const SoilResearchList = () => {
                     className="no-tap group relative rounded-2xl overflow-hidden shadow-card active:scale-95 transition-all duration-200"
                     style={{ height: 180 }}
                   >
-                    {/* Image or placeholder */}
                     {hasImage ? (
                       <img
                         src={r.imagenes[0]}
@@ -76,9 +88,7 @@ const SoilResearchList = () => {
                         <span className="text-5xl opacity-40">🔬</span>
                       </div>
                     )}
-                    {/* Gradient overlay */}
                     <div className="gradient-card absolute inset-0" />
-                    {/* Name & author */}
                     <div className="absolute bottom-0 left-0 right-0 p-3">
                       <p className="font-display text-sm font-semibold text-white leading-tight drop-shadow-lg line-clamp-2">
                         {r.nombreInvestigacion || soil.nombre}
@@ -87,7 +97,6 @@ const SoilResearchList = () => {
                         por {r.autor}
                       </p>
                     </div>
-                    {/* Corner badge */}
                     <div className="absolute top-2 right-2 bg-black/30 backdrop-blur-sm rounded-full px-2 py-0.5">
                       <span className="text-white/90 text-xs font-body font-medium">Usuario</span>
                     </div>
