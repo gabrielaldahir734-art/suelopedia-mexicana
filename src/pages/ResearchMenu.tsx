@@ -1,8 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { soils } from "@/data/soils";
-import { getResearchById } from "@/lib/userResearch";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { getResearchById, UserResearch } from "@/lib/userResearch";
+import { ArrowLeft, MapPin, Loader2 } from "lucide-react";
 import LocationMap from "@/components/LocationMap";
+import { useEffect, useState } from "react";
 
 const researchMenuOptions = [
   { id: "materialParental", label: "Material Parental", icon: "🪨", description: "Geología de origen" },
@@ -20,9 +21,31 @@ const ResearchMenu = () => {
   const { id, researchId } = useParams<{ id: string; researchId: string }>();
   const navigate = useNavigate();
   const soil = soils.find((s) => s.id === id);
-  const research = researchId ? getResearchById(researchId) : null;
+  const [research, setResearch] = useState<UserResearch | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!soil || !research) {
+  useEffect(() => {
+    if (!researchId) return;
+    getResearchById(researchId).then((data) => {
+      setResearch(data);
+      setLoading(false);
+    });
+  }, [researchId]);
+
+  if (!soil) {
+    navigate(`/soil/${id}/investigaciones`);
+    return null;
+  }
+
+  if (loading) {
+    return (
+      <div className="app-shell flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!research) {
     navigate(`/soil/${id}/investigaciones`);
     return null;
   }
@@ -31,18 +54,15 @@ const ResearchMenu = () => {
 
   return (
     <div className="app-shell flex flex-col">
-      {/* Hero Header */}
       <div className="relative h-56 flex-shrink-0">
         <img src={heroImage} alt={research.nombreInvestigacion} className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/70" />
-
         <button
           onClick={() => navigate(`/soil/${soil.id}/investigaciones`)}
           className="no-tap absolute top-4 left-4 pt-safe mt-2 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform"
         >
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
-
         <div className="absolute bottom-0 left-0 right-0 px-4 pb-4">
           <h2 className="font-display text-2xl font-bold text-white drop-shadow-lg leading-tight">
             {research.nombreInvestigacion}
@@ -53,10 +73,8 @@ const ResearchMenu = () => {
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-hide bg-background">
         <div className="px-3 py-3">
-          {/* Extra images gallery */}
           {research.imagenes && research.imagenes.length > 1 && (
             <div className="mb-3">
               <p className="text-xs text-muted-foreground font-body px-1 mb-2 uppercase tracking-wider font-medium">
@@ -64,18 +82,12 @@ const ResearchMenu = () => {
               </p>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
                 {research.imagenes.map((img, i) => (
-                  <img
-                    key={i}
-                    src={img}
-                    alt={`Foto ${i + 1}`}
-                    className="w-24 h-24 rounded-xl object-cover flex-shrink-0 border border-border"
-                  />
+                  <img key={i} src={img} alt={`Foto ${i + 1}`} className="w-24 h-24 rounded-xl object-cover flex-shrink-0 border border-border" />
                 ))}
               </div>
             </div>
           )}
 
-          {/* Location map */}
           {research.ubicacion && (
             <div className="mb-3">
               <p className="text-xs text-muted-foreground font-body px-1 mb-2 uppercase tracking-wider font-medium">
@@ -115,7 +127,6 @@ const ResearchMenu = () => {
               );
             })}
 
-            {/* Notes */}
             {research.notasAdicionales && (
               <button
                 onClick={() => navigate(`/soil/${soil.id}/investigaciones/${research.id}/notas`)}
