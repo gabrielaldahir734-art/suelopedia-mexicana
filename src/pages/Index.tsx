@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { soils } from "@/data/soils";
+import { useAuth } from "@/hooks/useAuth";
+import { LogOut, Shield } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { signOut, user, isAdmin } = useAuth();
 
   return (
     <div className="app-shell flex flex-col">
@@ -11,9 +14,27 @@ const Index = () => {
         <div className="px-4 py-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-xl">🌍</div>
-            <div>
+            <div className="flex-1">
               <h1 className="font-display text-2xl font-bold text-primary-foreground tracking-tight">EDAFPOUS</h1>
               <p className="text-xs text-primary-foreground/70 font-body">Suelos de México · WRB 2006 · INEGI</p>
+            </div>
+            <div className="flex items-center gap-1">
+              {isAdmin && (
+                <button
+                  onClick={() => navigate("/admin")}
+                  className="no-tap w-9 h-9 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-transform"
+                  title="Panel Admin"
+                >
+                  <Shield className="w-4 h-4 text-accent" />
+                </button>
+              )}
+              <button
+                onClick={signOut}
+                className="no-tap w-9 h-9 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-transform"
+                title="Cerrar sesión"
+              >
+                <LogOut className="w-4 h-4 text-primary-foreground/70" />
+              </button>
             </div>
           </div>
         </div>
@@ -34,15 +55,12 @@ const Index = () => {
               className="no-tap group relative rounded-2xl overflow-hidden shadow-card active:scale-95 transition-all duration-200"
               style={{ height: 180 }}
             >
-              {/* Soil Image */}
               <img
                 src={soil.imagen}
                 alt={soil.nombre}
                 className="absolute inset-0 w-full h-full object-cover group-active:brightness-90 transition-all duration-200"
               />
-              {/* Gradient overlay */}
               <div className="gradient-card absolute inset-0" />
-              {/* Name */}
               <div className="absolute bottom-0 left-0 right-0 p-3">
                 <p className="font-display text-sm font-semibold text-white leading-tight drop-shadow-lg">
                   {soil.nombre}
@@ -51,7 +69,6 @@ const Index = () => {
                   {soil.tagline}
                 </p>
               </div>
-              {/* Corner badge */}
               <div className="absolute top-2 right-2 bg-black/30 backdrop-blur-sm rounded-full px-2 py-0.5">
                 <span className="text-white/90 text-xs font-body font-medium">WRB</span>
               </div>

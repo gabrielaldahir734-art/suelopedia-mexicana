@@ -1,21 +1,32 @@
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { soils, menuOptions, getSoilInfoByOptionId } from "@/data/soils";
-import { ArrowLeft } from "lucide-react";
+import { getOverride, mergeInfoWithOverride } from "@/lib/soilOverrides";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 const SoilInfo = () => {
   const { id, optionId } = useParams<{ id: string; optionId: string }>();
   const navigate = useNavigate();
   const soil = soils.find((s) => s.id === id);
   const option = menuOptions.find((o) => o.id === optionId);
+  const [mergedContent, setMergedContent] = useState<{ title: string; content: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!soil || !optionId) return;
+    getOverride(soil.id).then((override) => {
+      const mergedInfo = mergeInfoWithOverride(soil.info, override);
+      const mergedSoil = { ...soil, info: mergedInfo };
+      setMergedContent(getSoilInfoByOptionId(mergedSoil, optionId));
+      setLoading(false);
+    });
+  }, [soil, optionId]);
 
   if (!soil || !option) {
     navigate("/");
     return null;
   }
 
-  const { title, content } = getSoilInfoByOptionId(soil, optionId!);
-
-  // Parse bold markdown **text**
   const parseContent = (text: string) => {
     const parts = text.split(/(\*\*[^*]+\*\*)/g);
     return parts.map((part, i) => {
@@ -26,16 +37,15 @@ const SoilInfo = () => {
     });
   };
 
-  // Split by double newlines for paragraphs
-  const paragraphs = content.split("\n\n").filter(Boolean);
-
   const currentIdx = menuOptions.findIndex((o) => o.id === optionId);
   const prev = currentIdx > 0 ? menuOptions[currentIdx - 1] : null;
   const next = currentIdx < menuOptions.length - 1 ? menuOptions[currentIdx + 1] : null;
 
+  const content = mergedContent?.content || "";
+  const paragraphs = content.split("\n\n").filter(Boolean);
+
   return (
     <div className="app-shell flex flex-col">
-      {/* Header */}
       <header className="gradient-header pt-safe flex-shrink-0">
         <div className="flex items-center gap-3 px-4 py-4">
           <button
@@ -47,45 +57,44 @@ const SoilInfo = () => {
           <div className="flex-1 min-w-0">
             <p className="text-primary-foreground/70 text-xs font-body truncate">{soil.nombre}</p>
             <h2 className="font-display text-lg font-bold text-primary-foreground leading-tight truncate">
-              {option.icon} {title}
+              {option.icon} {mergedContent?.title || option.label}
             </h2>
           </div>
         </div>
       </header>
 
-      {/* Content */}
       <main className="flex-1 overflow-y-auto scrollbar-hide">
-        {/* Soil mini-banner */}
         <div className="relative h-28 flex-shrink-0">
           <img src={soil.imagen} alt={soil.nombre} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
         </div>
 
-        {/* Info card */}
         <div className="px-4 pb-safe">
-          {/* Category badge */}
           <div className="inline-flex items-center gap-1.5 bg-primary/10 border border-primary/20 rounded-full px-3 py-1 mb-4">
             <span className="text-base">{option.icon}</span>
             <span className="text-primary text-xs font-body font-semibold uppercase tracking-wider">{option.description}</span>
           </div>
 
-          {/* Text content */}
-          <div className="space-y-3 mb-6">
-            {paragraphs.map((para, i) => (
-              <p key={i} className="text-foreground text-sm font-body leading-relaxed">
-                {parseContent(para)}
-              </p>
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="space-y-3 mb-6">
+              {paragraphs.map((para, i) => (
+                <p key={i} className="text-foreground text-sm font-body leading-relaxed">
+                  {parseContent(para)}
+                </p>
+              ))}
+            </div>
+          )}
 
-          {/* Source note */}
           <div className="bg-muted rounded-xl px-4 py-3 mb-4">
             <p className="text-muted-foreground text-xs font-body leading-relaxed">
               <span className="font-semibold">Fuentes:</span> INEGI (Carta Edafológica, Serie VI), WRB 2006 (IUSS Working Group WRB), Soil Taxonomy USDA, Comisión Nacional para el Conocimiento y Uso de la Biodiversidad (CONABIO).
             </p>
           </div>
 
-          {/* Navigation between options */}
           <div className="flex gap-2 pb-4">
             {prev && (
               <button
