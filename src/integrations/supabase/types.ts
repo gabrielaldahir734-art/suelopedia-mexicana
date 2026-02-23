@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      soil_overrides: {
+        Row: {
+          clasificacion_usda: string | null
+          clasificacion_wrb: string | null
+          clima: string | null
+          color_estructura: string | null
+          distribucion_geografica: string | null
+          drenaje: string | null
+          id: string
+          limitantes: string | null
+          material_parental: string | null
+          nombre: string | null
+          recomendaciones: string | null
+          relieve: string | null
+          retencion_agua: string | null
+          riesgos: string | null
+          soil_id: string
+          tagline: string | null
+          updated_at: string
+          usos_suelo: string | null
+          vegetacion: string | null
+        }
+        Insert: {
+          clasificacion_usda?: string | null
+          clasificacion_wrb?: string | null
+          clima?: string | null
+          color_estructura?: string | null
+          distribucion_geografica?: string | null
+          drenaje?: string | null
+          id?: string
+          limitantes?: string | null
+          material_parental?: string | null
+          nombre?: string | null
+          recomendaciones?: string | null
+          relieve?: string | null
+          retencion_agua?: string | null
+          riesgos?: string | null
+          soil_id: string
+          tagline?: string | null
+          updated_at?: string
+          usos_suelo?: string | null
+          vegetacion?: string | null
+        }
+        Update: {
+          clasificacion_usda?: string | null
+          clasificacion_wrb?: string | null
+          clima?: string | null
+          color_estructura?: string | null
+          distribucion_geografica?: string | null
+          drenaje?: string | null
+          id?: string
+          limitantes?: string | null
+          material_parental?: string | null
+          nombre?: string | null
+          recomendaciones?: string | null
+          relieve?: string | null
+          retencion_agua?: string | null
+          riesgos?: string | null
+          soil_id?: string
+          tagline?: string | null
+          updated_at?: string
+          usos_suelo?: string | null
+          vegetacion?: string | null
+        }
+        Relationships: []
+      }
       user_research: {
         Row: {
           altitud: number | null
@@ -86,15 +152,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -221,6 +311,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
