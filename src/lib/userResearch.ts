@@ -7,6 +7,8 @@ export interface GeoLocation {
   timestamp: string;
 }
 
+export type ResearchStatus = 'pendiente' | 'aprobada' | 'rechazada';
+
 export interface UserResearch {
   id: string;
   soilId: string;
@@ -25,6 +27,8 @@ export interface UserResearch {
   notasAdicionales: string;
   ubicacion: GeoLocation | null;
   imagenes: string[];
+  status: ResearchStatus;
+  adminComment: string | null;
 }
 
 // Map DB row to UserResearch
@@ -52,6 +56,8 @@ function rowToResearch(row: any): UserResearch {
       timestamp: row.ubicacion_timestamp || '',
     } : null,
     imagenes: row.imagenes || [],
+    status: row.status || 'pendiente',
+    adminComment: row.admin_comment || null,
   };
 }
 
@@ -66,6 +72,21 @@ export async function getResearchBySoilId(soilId: string): Promise<UserResearch[
   return (data as any[]).map(rowToResearch);
 }
 
+export async function getAllResearch(statusFilter?: ResearchStatus): Promise<UserResearch[]> {
+  let query = supabase
+    .from('user_research' as any)
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (statusFilter) {
+    query = query.eq('status', statusFilter);
+  }
+
+  const { data, error } = await query;
+  if (error || !data) return [];
+  return (data as any[]).map(rowToResearch);
+}
+
 export async function getResearchById(researchId: string): Promise<UserResearch | null> {
   const { data, error } = await supabase
     .from('user_research' as any)
@@ -75,6 +96,22 @@ export async function getResearchById(researchId: string): Promise<UserResearch 
 
   if (error || !data) return null;
   return rowToResearch(data as any);
+}
+
+export async function updateResearchStatus(
+  researchId: string,
+  status: ResearchStatus,
+  adminComment?: string
+): Promise<boolean> {
+  const updateData: any = { status };
+  if (adminComment !== undefined) updateData.admin_comment = adminComment;
+
+  const { error } = await supabase
+    .from('user_research' as any)
+    .update(updateData)
+    .eq('id', researchId);
+
+  return !error;
 }
 
 export async function saveResearch(research: UserResearch): Promise<boolean> {
@@ -100,6 +137,7 @@ export async function saveResearch(research: UserResearch): Promise<boolean> {
       altitud: research.ubicacion?.altitude ?? null,
       ubicacion_timestamp: research.ubicacion?.timestamp ?? null,
       imagenes: research.imagenes,
+      status: 'pendiente',
     } as any);
 
   return !error;

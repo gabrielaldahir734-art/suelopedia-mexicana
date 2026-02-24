@@ -14,6 +14,7 @@ import ResearchInfo from "./pages/ResearchInfo";
 import Auth from "./pages/Auth";
 import AdminPanel from "./pages/AdminPanel";
 import AdminSoilEdit from "./pages/AdminSoilEdit";
+import AdminModeration from "./pages/AdminModeration";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const AppRoutes = () => (
       <Route path="/soil/:id/:optionId" element={<ProtectedRoute><SoilInfo /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
       <Route path="/admin/soil/:id" element={<AdminRoute><AdminSoilEdit /></AdminRoute>} />
+      <Route path="/admin/moderacion" element={<AdminRoute><AdminModeration /></AdminRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </div>
