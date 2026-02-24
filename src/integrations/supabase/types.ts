@@ -82,6 +82,7 @@ export type Database = {
       }
       user_research: {
         Row: {
+          admin_comment: string | null
           altitud: number | null
           autor: string
           clima_tipico: string
@@ -100,11 +101,13 @@ export type Database = {
           notas_adicionales: string
           retencion_agua: string
           soil_id: string
+          status: string
           ubicacion_timestamp: string | null
           uso_comun: string
           vegetacion: string
         }
         Insert: {
+          admin_comment?: string | null
           altitud?: number | null
           autor: string
           clima_tipico?: string
@@ -123,11 +126,13 @@ export type Database = {
           notas_adicionales?: string
           retencion_agua?: string
           soil_id: string
+          status?: string
           ubicacion_timestamp?: string | null
           uso_comun?: string
           vegetacion?: string
         }
         Update: {
+          admin_comment?: string | null
           altitud?: number | null
           autor?: string
           clima_tipico?: string
@@ -146,6 +151,7 @@ export type Database = {
           notas_adicionales?: string
           retencion_agua?: string
           soil_id?: string
+          status?: string
           ubicacion_timestamp?: string | null
           uso_comun?: string
           vegetacion?: string

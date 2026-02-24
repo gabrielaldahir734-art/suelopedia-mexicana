@@ -90,13 +90,15 @@ const SoilResearchForm = () => {
       notasAdicionales: form.notasAdicionales.trim(),
       ubicacion,
       imagenes,
+      status: 'pendiente',
+      adminComment: null,
     };
 
     const success = await saveResearch(research);
     setSending(false);
 
     if (success) {
-      toast({ title: "¡Investigación guardada!", description: "Tu aporte ya aparece en la sección de investigaciones." });
+      toast({ title: "¡Investigación enviada!", description: "Tu aporte será revisado por un administrador antes de publicarse." });
       navigate(`/soil/${soil.id}/investigaciones`);
     } else {
       toast({ title: "Error", description: "No se pudo guardar. Intenta de nuevo.", variant: "destructive" });

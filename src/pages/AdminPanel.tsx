@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { soils } from "@/data/soils";
 import { useAuth } from "@/hooks/useAuth";
-import { ArrowLeft, Edit, LogOut, Shield } from "lucide-react";
+import { ArrowLeft, Edit, LogOut, Shield, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const AdminPanel = () => {
@@ -39,6 +39,20 @@ const AdminPanel = () => {
             Selecciona un suelo para editar su información.
           </p>
         </div>
+
+        {/* Moderation link */}
+        <button
+          onClick={() => navigate("/admin/moderacion")}
+          className="no-tap w-full flex items-center gap-3 bg-accent/10 border border-accent/20 rounded-xl px-4 py-4 active:scale-98 transition-all duration-150 shadow-sm text-left mb-4"
+        >
+          <div className="w-12 h-12 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
+            <ClipboardCheck className="w-6 h-6 text-accent" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-body font-semibold text-foreground text-sm">Moderación de Investigaciones</p>
+            <p className="text-muted-foreground text-xs mt-0.5">Revisar, aprobar o rechazar investigaciones</p>
+          </div>
+        </button>
 
         <p className="text-xs text-muted-foreground font-body px-1 mb-2 uppercase tracking-wider font-medium">
           Tipos de suelo
