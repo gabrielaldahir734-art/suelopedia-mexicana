@@ -66,6 +66,7 @@ export async function getResearchBySoilId(soilId: string): Promise<UserResearch[
     .from('user_research' as any)
     .select('*')
     .eq('soil_id', soilId)
+    .eq('status', 'aprobada')
     .order('created_at', { ascending: false });
 
   if (error || !data) return [];
