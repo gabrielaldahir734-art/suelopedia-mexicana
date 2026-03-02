@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { soils } from "@/data/soils";
 import { getAllResearch, updateResearchStatus, UserResearch, ResearchStatus } from "@/lib/userResearch";
+import { notifyResearchStatus } from "@/lib/notifications";
 import { ArrowLeft, Loader2, Check, X, Clock, Eye, MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -40,6 +41,12 @@ const AdminModeration = () => {
     setActionLoading(null);
 
     if (success) {
+      // Notify user via email (fire-and-forget)
+      notifyResearchStatus(
+        newStatus === "aprobada" ? "approved" : "rejected",
+        research.nombreInvestigacion,
+        comment || undefined,
+      );
       toast({
         title: newStatus === "aprobada" ? "✅ Investigación aprobada" : "❌ Investigación rechazada",
         description: `"${research.nombreInvestigacion}" de ${research.autor}`,
