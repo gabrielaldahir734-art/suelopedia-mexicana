@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { soils } from "@/data/soils";
 import { saveResearch, UserResearch, GeoLocation } from "@/lib/userResearch";
+import { notifyNewSubmission } from "@/lib/notifications";
 import { ArrowLeft, Send, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -98,6 +99,25 @@ const SoilResearchForm = () => {
     setSending(false);
 
     if (success) {
+      // Send notification to admin (fire-and-forget)
+      notifyNewSubmission({
+        nombreInvestigacion: research.nombreInvestigacion,
+        autor: research.autor,
+        soilName: soil.nombre,
+        fecha: research.fecha,
+        materialParental: research.materialParental,
+        colorTipico: research.colorTipico,
+        retencionAgua: research.retencionAgua,
+        drenaje: research.drenaje,
+        climaTipico: research.climaTipico,
+        vegetacion: research.vegetacion,
+        usoComun: research.usoComun,
+        limitantes: research.limitantes,
+        distribucion: research.distribucion,
+        notasAdicionales: research.notasAdicionales,
+        imagenes: research.imagenes,
+        ubicacion: research.ubicacion,
+      });
       toast({ title: "¡Investigación enviada!", description: "Tu aporte será revisado por un administrador antes de publicarse." });
       navigate(`/soil/${soil.id}/investigaciones`);
     } else {
