@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 const options = [
   {
