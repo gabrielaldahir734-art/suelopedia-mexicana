@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { soils } from "@/data/soils";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, Shield } from "lucide-react";
+import { LogOut, Shield, Menu } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -19,6 +19,13 @@ const Index = () => {
               <p className="text-xs text-primary-foreground/70 font-body">Suelos de México · WRB 2006 · INEGI</p>
             </div>
             <div className="flex items-center gap-1">
+              <button
+                onClick={() => navigate("/opciones")}
+                className="no-tap w-9 h-9 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-transform"
+                title="Opciones"
+              >
+                <Menu className="w-4 h-4 text-primary-foreground/70" />
+              </button>
               {isAdmin && (
                 <button
                   onClick={() => navigate("/admin")}
