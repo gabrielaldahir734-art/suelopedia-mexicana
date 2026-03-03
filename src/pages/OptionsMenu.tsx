@@ -3,6 +3,13 @@ import { ArrowLeft } from "lucide-react";
 
 const options = [
   {
+    id: "mapa-suelos",
+    label: "Mapa de suelos de México",
+    description: "Explora tipos de suelo por localidad con datos oficiales",
+    icon: "🗺️",
+    route: "/opciones/mapa-suelos",
+  },
+  {
     id: "glosario",
     label: "Glosario de términos",
     description: "Palabras técnicas del estudio del suelo",

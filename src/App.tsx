@@ -17,6 +17,7 @@ import AdminSoilEdit from "./pages/AdminSoilEdit";
 import AdminModeration from "./pages/AdminModeration";
 import OptionsMenu from "./pages/OptionsMenu";
 import Glossary from "./pages/Glossary";
+import SoilMap from "./pages/SoilMap";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +57,7 @@ const AppRoutes = () => (
       <Route path="/soil/:id/:optionId" element={<ProtectedRoute><SoilInfo /></ProtectedRoute>} />
       <Route path="/opciones" element={<ProtectedRoute><OptionsMenu /></ProtectedRoute>} />
       <Route path="/opciones/glosario" element={<ProtectedRoute><Glossary /></ProtectedRoute>} />
+      <Route path="/opciones/mapa-suelos" element={<ProtectedRoute><SoilMap /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
       <Route path="/admin/soil/:id" element={<AdminRoute><AdminSoilEdit /></AdminRoute>} />
       <Route path="/admin/moderacion" element={<AdminRoute><AdminModeration /></AdminRoute>} />
