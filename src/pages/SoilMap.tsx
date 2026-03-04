@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import L from "leaflet";
+import * as EsriLeaflet from "esri-leaflet";
 import "leaflet/dist/leaflet.css";
 import { ArrowLeft, Search, Layers, X, Loader2 } from "lucide-react";
 
@@ -16,94 +17,48 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-const SEMARNAT_BASE =
+const SEMARNAT_URL =
   "https://gisviewer.semarnat.gob.mx/ArcGIS/rest/services/INFOTECA/suelos/MapServer";
 
 interface LayerConfig {
   id: string;
   label: string;
-  layers: string; // comma-separated ArcGIS layer ids
+  layers: number[];
   active: boolean;
 }
 
-interface IdentifyResult {
-  layerName: string;
-  attributes: Record<string, any>;
-}
-
 const INITIAL_LAYERS: LayerConfig[] = [
-  { id: "dominantes", label: "Suelos Dominantes", layers: "3,4", active: true },
-  { id: "textura", label: "Textura de Suelos", layers: "6,7", active: false },
-  { id: "degradacion", label: "Degradación física", layers: "8", active: false },
-  { id: "erosion_h", label: "Erosión hídrica", layers: "11", active: false },
+  { id: "dominantes", label: "Suelos Dominantes", layers: [3, 4], active: true },
+  { id: "textura", label: "Textura de Suelos", layers: [6, 7], active: false },
+  { id: "degradacion", label: "Degradación física", layers: [8], active: false },
+  { id: "erosion_h", label: "Erosión hídrica", layers: [11], active: false },
 ];
 
 const SoilMap = () => {
   const navigate = useNavigate();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
-  const overlayRef = useRef<L.TileLayer | null>(null);
+  const dynamicLayerRef = useRef<any>(null);
   const searchMarkerRef = useRef<L.Marker | null>(null);
 
   const [layerConfigs, setLayerConfigs] = useState<LayerConfig[]>(INITIAL_LAYERS);
   const [showLayers, setShowLayers] = useState(false);
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
-  const [popup, setPopup] = useState<IdentifyResult | null>(null);
   const [identifying, setIdentifying] = useState(false);
 
-  // Build the active layer list string
+  // Get active layer IDs
   const activeLayers = layerConfigs
     .filter((l) => l.active)
-    .flatMap((l) => l.layers.split(","))
-    .join(",");
+    .flatMap((l) => l.layers);
 
-  // Create/update the ArcGIS export overlay
-  const updateOverlay = useCallback(
-    (map: L.Map) => {
-      if (overlayRef.current) {
-        map.removeLayer(overlayRef.current);
-        overlayRef.current = null;
-      }
-      if (!activeLayers) return;
-
-      // Use ArcGIS REST export as a tile layer
-      const layer = L.tileLayer(
-        `${SEMARNAT_BASE}/export?dpi=96&transparent=true&format=png32&layers=show:${activeLayers}&bbox={bbox}&bboxSR=4326&imageSR=4326&size=256,256&f=image`,
-        {
-          attribution: "SEMARNAT · INEGI",
-          opacity: 0.65,
-          maxZoom: 18,
-          // Custom tile URL with bbox
-          // We override getTileUrl to compute bbox from tile coords
-        }
-      );
-
-      // Override getTileUrl to build proper bbox
-      (layer as any).getTileUrl = function (coords: L.Coords) {
-        const map = this._map as L.Map;
-        const tileSize = this.getTileSize();
-        const nwPoint = coords.scaleBy(tileSize);
-        const sePoint = nwPoint.add(tileSize);
-        const nw = map.unproject(nwPoint, coords.z);
-        const se = map.unproject(sePoint, coords.z);
-        const bbox = `${nw.lng},${se.lat},${se.lng},${nw.lat}`;
-        return `${SEMARNAT_BASE}/export?dpi=96&transparent=true&format=png32&layers=show:${activeLayers}&bbox=${bbox}&bboxSR=4326&imageSR=4326&size=${tileSize.x},${tileSize.y}&f=image`;
-      };
-
-      layer.addTo(map);
-      overlayRef.current = layer;
-    },
-    [activeLayers]
-  );
-
-  // Init map
+  // Init map once
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
 
     const map = L.map(mapRef.current, {
-      center: [23.6345, -102.5528], // Mexico center
-      zoom: 5,
+      center: [23.6345, -102.5528],
+      zoom: 6,
       zoomControl: false,
     });
 
@@ -115,7 +70,7 @@ const SoilMap = () => {
     L.control.zoom({ position: "bottomright" }).addTo(map);
 
     mapInstance.current = map;
-    setTimeout(() => map.invalidateSize(), 100);
+    setTimeout(() => map.invalidateSize(), 200);
 
     return () => {
       map.remove();
@@ -123,69 +78,79 @@ const SoilMap = () => {
     };
   }, []);
 
-  // Update overlay when layers change
-  useEffect(() => {
-    if (mapInstance.current) {
-      updateOverlay(mapInstance.current);
-    }
-  }, [activeLayers, updateOverlay]);
-
-  // Click identify
+  // Update dynamic layer when active layers change
   useEffect(() => {
     const map = mapInstance.current;
     if (!map) return;
 
-    const handleClick = async (e: L.LeafletMouseEvent) => {
-      if (!activeLayers) return;
+    // Remove old layer
+    if (dynamicLayerRef.current) {
+      map.removeLayer(dynamicLayerRef.current);
+      dynamicLayerRef.current = null;
+    }
+
+    if (activeLayers.length === 0) return;
+
+    const dynLayer = EsriLeaflet.dynamicMapLayer({
+      url: SEMARNAT_URL,
+      layers: activeLayers,
+      opacity: 0.7,
+      useCors: true,
+      f: "image",
+    } as any);
+
+    dynLayer.addTo(map);
+    dynamicLayerRef.current = dynLayer;
+  }, [activeLayers.join(",")]);
+
+  // Click → identify
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map) return;
+
+    const handleClick = (e: L.LeafletMouseEvent) => {
+      if (activeLayers.length === 0) return;
+      if (!dynamicLayerRef.current) return;
+
       setIdentifying(true);
-      setPopup(null);
 
-      const bounds = map.getBounds();
-      const size = map.getSize();
-      const point = map.latLngToContainerPoint(e.latlng);
+      dynamicLayerRef.current
+        .identify()
+        .on(map)
+        .at(e.latlng)
+        .layers(`visible:${activeLayers.join(",")}`)
+        .tolerance(5)
+        .run((error: any, featureCollection: any) => {
+          setIdentifying(false);
+          if (error) return;
 
-      const params = new URLSearchParams({
-        geometry: `${e.latlng.lng},${e.latlng.lat}`,
-        geometryType: "esriGeometryPoint",
-        sr: "4326",
-        layers: `visible:${activeLayers}`,
-        tolerance: "10",
-        mapExtent: `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`,
-        imageDisplay: `${size.x},${size.y},96`,
-        returnGeometry: "false",
-        f: "json",
-      });
+          if (
+            featureCollection &&
+            featureCollection.features &&
+            featureCollection.features.length > 0
+          ) {
+            const feature = featureCollection.features[0];
+            const props = feature.properties || {};
+            const layerName = props.layerName || "Suelo";
 
-      try {
-        const res = await fetch(`${SEMARNAT_BASE}/identify?${params}`);
-        const data = await res.json();
-
-        if (data.results && data.results.length > 0) {
-          const r = data.results[0];
-          setPopup({
-            layerName: r.layerName || "Suelo",
-            attributes: r.attributes || {},
-          });
-
-          // Show popup on map
-          const popupContent = buildPopupHtml(r.layerName, r.attributes);
-          L.popup()
-            .setLatLng(e.latlng)
-            .setContent(popupContent)
-            .openOn(map);
-        }
-      } catch {
-        // Service may be unavailable
-      } finally {
-        setIdentifying(false);
-      }
+            const html = buildPopupHtml(layerName, props);
+            L.popup().setLatLng(e.latlng).setContent(html).openOn(map);
+          } else {
+            L.popup()
+              .setLatLng(e.latlng)
+              .setContent(
+                '<p style="font-family:Inter,sans-serif;font-size:11px;color:#888">Sin datos de suelo en este punto</p>'
+              )
+              .openOn(map);
+          }
+        });
     };
 
     map.on("click", handleClick);
     return () => {
       map.off("click", handleClick);
     };
-  }, [activeLayers]);
+  }, [activeLayers.join(",")]);
 
   // Search by place name
   const handleSearch = async () => {
@@ -193,7 +158,9 @@ const SoilMap = () => {
     setSearching(true);
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ", México")}&limit=1`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          query + ", México"
+        )}&limit=1`
       );
       const results = await res.json();
       if (results.length > 0) {
@@ -271,7 +238,11 @@ const SoilMap = () => {
               disabled={searching}
               className="no-tap bg-accent/80 hover:bg-accent rounded-xl px-3 py-2 text-xs font-body font-semibold text-accent-foreground active:scale-95 transition-transform disabled:opacity-50"
             >
-              {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : "Buscar"}
+              {searching ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Buscar"
+              )}
             </button>
           </div>
         </div>
@@ -281,8 +252,13 @@ const SoilMap = () => {
       {showLayers && (
         <div className="absolute top-28 right-3 z-40 bg-card border border-border rounded-xl shadow-card p-3 w-56">
           <div className="flex items-center justify-between mb-2">
-            <p className="font-body font-semibold text-foreground text-xs">Capas</p>
-            <button onClick={() => setShowLayers(false)} className="text-muted-foreground">
+            <p className="font-body font-semibold text-foreground text-xs">
+              Capas
+            </p>
+            <button
+              onClick={() => setShowLayers(false)}
+              className="text-muted-foreground"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -297,7 +273,9 @@ const SoilMap = () => {
                 onChange={() => toggleLayer(l.id)}
                 className="rounded border-border accent-primary w-4 h-4"
               />
-              <span className="text-foreground text-xs font-body">{l.label}</span>
+              <span className="text-foreground text-xs font-body">
+                {l.label}
+              </span>
             </label>
           ))}
           <p className="text-muted-foreground text-[10px] font-body mt-2">
@@ -310,7 +288,9 @@ const SoilMap = () => {
       {identifying && (
         <div className="absolute top-28 left-1/2 -translate-x-1/2 z-40 bg-card border border-border rounded-full px-3 py-1.5 shadow-card flex items-center gap-2">
           <Loader2 className="w-3 h-3 animate-spin text-primary" />
-          <span className="text-xs font-body text-foreground">Identificando suelo…</span>
+          <span className="text-xs font-body text-foreground">
+            Identificando suelo…
+          </span>
         </div>
       )}
 
@@ -321,12 +301,16 @@ const SoilMap = () => {
 };
 
 function buildPopupHtml(layerName: string, attrs: Record<string, any>): string {
-  const SKIP_KEYS = ["OBJECTID", "Shape", "Shape_Length", "Shape_Area", "FID", "OBJECTID_1"];
+  const SKIP_KEYS = [
+    "OBJECTID", "Shape", "Shape_Length", "Shape_Area", "FID",
+    "OBJECTID_1", "layerName", "layerId",
+  ];
   const entries = Object.entries(attrs).filter(
-    ([k, v]) => !SKIP_KEYS.includes(k) && v !== null && v !== "" && v !== "Null"
+    ([k, v]) =>
+      !SKIP_KEYS.includes(k) && v !== null && v !== "" && v !== "Null"
   );
 
-  let html = `<div style="font-family:Inter,sans-serif;max-width:220px">`;
+  let html = `<div style="font-family:Inter,sans-serif;max-width:240px">`;
   html += `<p style="font-weight:700;font-size:13px;margin:0 0 6px">${layerName}</p>`;
   entries.forEach(([k, v]) => {
     html += `<p style="margin:2px 0;font-size:11px"><b>${k.replace(/_/g, " ")}:</b> ${v}</p>`;
