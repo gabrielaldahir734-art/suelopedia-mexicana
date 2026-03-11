@@ -60,6 +60,8 @@ const AppRoutes = () => (
       <Route path="/opciones" element={<ProtectedRoute><OptionsMenu /></ProtectedRoute>} />
       <Route path="/opciones/glosario" element={<ProtectedRoute><Glossary /></ProtectedRoute>} />
       <Route path="/opciones/mapa-suelos" element={<ProtectedRoute><SoilMap /></ProtectedRoute>} />
+      <Route path="/opciones/quiz" element={<ProtectedRoute><QuizMenu /></ProtectedRoute>} />
+      <Route path="/opciones/quiz/:quizId" element={<ProtectedRoute><QuizPlay /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
       <Route path="/admin/soil/:id" element={<AdminRoute><AdminSoilEdit /></AdminRoute>} />
       <Route path="/admin/moderacion" element={<AdminRoute><AdminModeration /></AdminRoute>} />

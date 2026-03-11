@@ -10,6 +10,13 @@ const options = [
     route: "/opciones/mapa-suelos",
   },
   {
+    id: "quiz",
+    label: "Contenido interactivo",
+    description: "Quizzes y ejercicios para reforzar conocimientos",
+    icon: "🧠",
+    route: "/opciones/quiz",
+  },
+  {
     id: "glosario",
     label: "Glosario de términos",
     description: "Palabras técnicas del estudio del suelo",
