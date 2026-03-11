@@ -18,6 +18,8 @@ import AdminModeration from "./pages/AdminModeration";
 import OptionsMenu from "./pages/OptionsMenu";
 import Glossary from "./pages/Glossary";
 import SoilMap from "./pages/SoilMap";
+import QuizMenu from "./pages/QuizMenu";
+import QuizPlay from "./pages/QuizPlay";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
