@@ -18,6 +18,8 @@ import AdminModeration from "./pages/AdminModeration";
 import OptionsMenu from "./pages/OptionsMenu";
 import Glossary from "./pages/Glossary";
 import SoilMap from "./pages/SoilMap";
+import QuizMenu from "./pages/QuizMenu";
+import QuizPlay from "./pages/QuizPlay";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -58,6 +60,8 @@ const AppRoutes = () => (
       <Route path="/opciones" element={<ProtectedRoute><OptionsMenu /></ProtectedRoute>} />
       <Route path="/opciones/glosario" element={<ProtectedRoute><Glossary /></ProtectedRoute>} />
       <Route path="/opciones/mapa-suelos" element={<ProtectedRoute><SoilMap /></ProtectedRoute>} />
+      <Route path="/opciones/quiz" element={<ProtectedRoute><QuizMenu /></ProtectedRoute>} />
+      <Route path="/opciones/quiz/:quizId" element={<ProtectedRoute><QuizPlay /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
       <Route path="/admin/soil/:id" element={<AdminRoute><AdminSoilEdit /></AdminRoute>} />
       <Route path="/admin/moderacion" element={<AdminRoute><AdminModeration /></AdminRoute>} />
