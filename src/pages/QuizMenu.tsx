@@ -9,12 +9,14 @@ const QuizMenu = () => {
     "identificacion-suelos": "from-[hsl(205,55%,55%)] to-[hsl(205,65%,40%)]",
     "propiedades-suelo": "from-[hsl(85,28%,35%)] to-[hsl(85,35%,25%)]",
     "usos-suelo": "from-[hsl(28,60%,42%)] to-[hsl(28,55%,30%)]",
+    "glosario-suelo": "from-[hsl(270,45%,50%)] to-[hsl(270,55%,35%)]",
   };
 
   const categoryEmojiBg: Record<string, string> = {
     "identificacion-suelos": "bg-[hsl(205,55%,55%/0.15)]",
     "propiedades-suelo": "bg-[hsl(85,28%,35%/0.15)]",
     "usos-suelo": "bg-[hsl(28,60%,42%/0.15)]",
+    "glosario-suelo": "bg-[hsl(270,45%,50%/0.15)]",
   };
 
   return (
@@ -55,24 +57,9 @@ const QuizMenu = () => {
                 <p className="font-display font-bold text-foreground text-base">¡Pon a prueba lo que sabes!</p>
               </div>
             </div>
-            <p className="text-muted-foreground text-xs font-body leading-relaxed mb-3">
-              Cada partida te da <span className="font-bold text-foreground">{QUESTIONS_PER_GAME} preguntas al azar</span> de un banco de 50. 
-              ¡Nunca jugarás el mismo quiz dos veces!
+            <p className="text-muted-foreground text-xs font-body leading-relaxed">
+              Cada partida te da preguntas al azar. ¡Nunca jugarás el mismo quiz dos veces!
             </p>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 bg-card/60 rounded-full px-2.5 py-1">
-                <Shuffle className="w-3.5 h-3.5 text-accent" />
-                <span className="text-xs font-body font-medium text-foreground">Aleatorio</span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-card/60 rounded-full px-2.5 py-1">
-                <Zap className="w-3.5 h-3.5 text-accent" />
-                <span className="text-xs font-body font-medium text-foreground">{QUESTIONS_PER_GAME} por ronda</span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-card/60 rounded-full px-2.5 py-1">
-                <Sparkles className="w-3.5 h-3.5 text-accent" />
-                <span className="text-xs font-body font-medium text-foreground">Aprende</span>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -97,23 +84,9 @@ const QuizMenu = () => {
                     <p className="font-display font-bold text-foreground text-sm leading-tight mb-1">
                       {quiz.title}
                     </p>
-                    <p className="text-muted-foreground text-xs font-body leading-relaxed mb-2">
+                    <p className="text-muted-foreground text-xs font-body leading-relaxed">
                       {quiz.description}
                     </p>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1 bg-muted/60 rounded-full px-2 py-0.5">
-                        <Target className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-muted-foreground text-[10px] font-body font-medium">
-                          {quiz.questions.length} preguntas
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1 bg-accent/10 rounded-full px-2 py-0.5">
-                        <Shuffle className="w-3 h-3 text-accent" />
-                        <span className="text-accent text-[10px] font-body font-medium">
-                          {QUESTIONS_PER_GAME} por partida
-                        </span>
-                      </div>
-                    </div>
                   </div>
                   <div className="text-muted-foreground/40 text-xl group-active:translate-x-1 transition-transform">›</div>
                 </div>
