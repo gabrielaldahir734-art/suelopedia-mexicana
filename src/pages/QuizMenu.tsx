@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Brain, Trophy, Sparkles, Zap, Target, Shuffle } from "lucide-react";
-import { quizzes, QUESTIONS_PER_GAME } from "@/data/quizzes";
+import { ArrowLeft, Brain, Trophy } from "lucide-react";
+import { quizzes } from "@/data/quizzes";
 
 const QuizMenu = () => {
   const navigate = useNavigate();
