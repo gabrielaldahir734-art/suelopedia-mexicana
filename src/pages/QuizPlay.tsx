@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, XCircle, RotateCcw, Trophy, ChevronRight, Sparkles, Star, Flame, Target } from "lucide-react";
-import { quizzes, getRandomQuestions, QUESTIONS_PER_GAME } from "@/data/quizzes";
+import { quizzes, getRandomQuestions, shuffleArray, QUESTIONS_PER_GAME } from "@/data/quizzes";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { QuizQuestion } from "@/data/quizzes";
