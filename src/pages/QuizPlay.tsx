@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, XCircle, RotateCcw, Trophy, ChevronRight, Sparkles, Star, Flame, Target } from "lucide-react";
-import { quizzes, getRandomQuestions, QUESTIONS_PER_GAME } from "@/data/quizzes";
+import { quizzes, getRandomQuestions, shuffleArray, QUESTIONS_PER_GAME } from "@/data/quizzes";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { QuizQuestion } from "@/data/quizzes";
@@ -21,10 +21,20 @@ const QuizPlay = () => {
   const [finished, setFinished] = useState(false);
   const [answers, setAnswers] = useState<boolean[]>([]);
 
-  // Pick random questions once per game
+  // Pick random questions once per game, with shuffled options
   const gameQuestions: QuizQuestion[] = useMemo(() => {
     if (!quiz) return [];
-    return getRandomQuestions(quiz, QUESTIONS_PER_GAME);
+    const questions = getRandomQuestions(quiz, QUESTIONS_PER_GAME);
+    // Shuffle option order so correct answer isn't always in the same position
+    return questions.map(q => {
+      const indices = q.options.map((_, i) => i);
+      const shuffledIndices = shuffleArray(indices);
+      return {
+        ...q,
+        options: shuffledIndices.map(i => q.options[i]),
+        correctIndex: shuffledIndices.indexOf(q.correctIndex),
+      };
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quiz, gameKey]);
 
