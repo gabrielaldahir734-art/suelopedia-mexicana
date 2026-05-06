@@ -64,9 +64,15 @@ const SoilInfo = () => {
       </header>
 
       <main className="flex-1 overflow-y-auto scrollbar-hide">
-        <div className="relative h-28 flex-shrink-0">
-          <img src={soil.imagen} alt={soil.nombre} className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
+        <div className="relative h-44 flex-shrink-0">
+          <img src={option.image} alt={option.label} className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-background" />
+          <div className="absolute bottom-2 left-4 right-4">
+            <p className="text-white/90 text-xs font-body drop-shadow">{soil.nombre}</p>
+            <p className="font-display text-lg font-bold text-white drop-shadow-lg leading-tight">
+              {option.icon} {option.label}
+            </p>
+          </div>
         </div>
 
         <div className="px-4 pb-safe">

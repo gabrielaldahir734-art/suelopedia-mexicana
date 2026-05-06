@@ -770,20 +770,34 @@ export const soils: Soil[] = [
   },
 ];
 
+import catNombre from '@/assets/categories/nombre.jpg';
+import catDistribucion from '@/assets/categories/distribucion.jpg';
+import catMaterial from '@/assets/categories/material.jpg';
+import catRelieve from '@/assets/categories/relieve.jpg';
+import catClima from '@/assets/categories/clima.jpg';
+import catVegetacion from '@/assets/categories/vegetacion.jpg';
+import catUsos from '@/assets/categories/usos.jpg';
+import catLimitantes from '@/assets/categories/limitantes.jpg';
+import catColor from '@/assets/categories/color.jpg';
+import catRetencion from '@/assets/categories/retencion.jpg';
+import catDrenaje from '@/assets/categories/drenaje.jpg';
+import catRiesgos from '@/assets/categories/riesgos.jpg';
+import catRecomendaciones from '@/assets/categories/recomendaciones.jpg';
+
 export const menuOptions = [
-  { id: 'nombre', label: 'Nombre y Clasificación', icon: '🏷️', description: 'WRB y USDA' },
-  { id: 'distribucion', label: 'Distribución Geográfica', icon: '🗺️', description: 'Dónde se encuentra' },
-  { id: 'material', label: 'Material Parental', icon: '🪨', description: 'Geología de origen' },
-  { id: 'relieve', label: 'Relieve Asociado', icon: '⛰️', description: 'Pendiente y paisaje' },
-  { id: 'clima', label: 'Clima Característico', icon: '🌤️', description: 'Temperatura y lluvia' },
-  { id: 'vegetacion', label: 'Vegetación Asociada', icon: '🌿', description: 'Flora típica' },
-  { id: 'usos', label: 'Usos del Suelo', icon: '🌾', description: 'Actuales y potenciales' },
-  { id: 'limitantes', label: 'Limitantes del Suelo', icon: '⚠️', description: 'Restricciones típicas' },
-  { id: 'color', label: 'Color y Estructura', icon: '🎨', description: 'Características visuales' },
-  { id: 'retencion', label: 'Retención de Agua', icon: '💧', description: 'Capacidad hídrica' },
-  { id: 'drenaje', label: 'Drenaje Natural', icon: '🌊', description: 'Comportamiento hídrico' },
-  { id: 'riesgos', label: 'Riesgos Frecuentes', icon: '🔴', description: 'Erosión, inundación...' },
-  { id: 'recomendaciones', label: 'Recomendaciones de Manejo', icon: '✅', description: 'Manejo físico' },
+  { id: 'nombre', label: 'Nombre y Clasificación', icon: '🏷️', description: 'WRB y USDA', image: catNombre },
+  { id: 'distribucion', label: 'Distribución Geográfica', icon: '🗺️', description: 'Dónde se encuentra', image: catDistribucion },
+  { id: 'material', label: 'Material Parental', icon: '🪨', description: 'Geología de origen', image: catMaterial },
+  { id: 'relieve', label: 'Relieve Asociado', icon: '⛰️', description: 'Pendiente y paisaje', image: catRelieve },
+  { id: 'clima', label: 'Clima Característico', icon: '🌤️', description: 'Temperatura y lluvia', image: catClima },
+  { id: 'vegetacion', label: 'Vegetación Asociada', icon: '🌿', description: 'Flora típica', image: catVegetacion },
+  { id: 'usos', label: 'Usos del Suelo', icon: '🌾', description: 'Actuales y potenciales', image: catUsos },
+  { id: 'limitantes', label: 'Limitantes del Suelo', icon: '⚠️', description: 'Restricciones típicas', image: catLimitantes },
+  { id: 'color', label: 'Color y Estructura', icon: '🎨', description: 'Características visuales', image: catColor },
+  { id: 'retencion', label: 'Retención de Agua', icon: '💧', description: 'Capacidad hídrica', image: catRetencion },
+  { id: 'drenaje', label: 'Drenaje Natural', icon: '🌊', description: 'Comportamiento hídrico', image: catDrenaje },
+  { id: 'riesgos', label: 'Riesgos Frecuentes', icon: '🔴', description: 'Erosión, inundación...', image: catRiesgos },
+  { id: 'recomendaciones', label: 'Recomendaciones de Manejo', icon: '✅', description: 'Manejo físico', image: catRecomendaciones },
 ];
 
 export function getSoilInfoByOptionId(soil: Soil, optionId: string): { title: string; content: string } {

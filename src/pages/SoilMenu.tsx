@@ -45,9 +45,19 @@ const SoilMenu = () => {
               <button
                 key={option.id}
                 onClick={() => navigate(`/soil/${soil.id}/${option.id}`)}
-                className="no-tap w-full flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 active:scale-98 active:bg-muted transition-all duration-150 shadow-sm text-left"
+                className="no-tap w-full flex items-center gap-3 bg-card border border-border rounded-xl p-2 pr-3 active:scale-98 active:bg-muted transition-all duration-150 shadow-sm text-left"
               >
-                <span className="text-2xl w-8 text-center flex-shrink-0">{option.icon}</span>
+                <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                  <img
+                    src={option.image}
+                    alt={option.label}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <span className="absolute bottom-0.5 right-0.5 text-xs bg-black/40 backdrop-blur-sm rounded px-1 leading-tight">
+                    {option.icon}
+                  </span>
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-body font-semibold text-foreground text-sm leading-tight">{option.label}</p>
                   <p className="text-muted-foreground text-xs mt-0.5">{option.description}</p>
