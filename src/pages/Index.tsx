@@ -15,7 +15,7 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-xl">🌍</div>
             <div className="flex-1">
-              <h1 className="font-display text-2xl font-bold text-primary-foreground tracking-tight">EDAFPOUS</h1>
+              <h1 className="font-display text-2xl font-bold text-primary-foreground tracking-tight">Lu'um</h1>
               <p className="text-xs text-primary-foreground/70 font-body">Suelos de México · WRB 2006 · INEGI</p>
             </div>
             <div className="flex items-center gap-1">
