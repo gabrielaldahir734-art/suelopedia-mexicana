@@ -472,6 +472,19 @@ const SoilMap = () => {
                 </option>
               ))}
             </select>
+          ) : mode === "world" ? (
+            <select
+              value={selectedWorldSoil}
+              onChange={(e) => setSelectedWorldSoil(e.target.value)}
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-sm text-primary-foreground font-body focus:outline-none focus:ring-1 focus:ring-accent appearance-none"
+            >
+              <option value="" className="text-foreground bg-card">Todos los suelos del mundo (WRB)</option>
+              {WORLD_SOILS.map((s) => (
+                <option key={s.codigo} value={s.codigo} className="text-foreground bg-card">
+                  {s.nombre} ({s.codigo})
+                </option>
+              ))}
+            </select>
           ) : (
             <div className="flex gap-2">
               <div className="flex-1 relative">
