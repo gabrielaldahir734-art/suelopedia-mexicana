@@ -397,6 +397,12 @@ const SoilMap = () => {
     setStateQuery("");
     setSelectedState("");
     setHasMunicipalData(false);
+    setSelectedWorldSoil("");
+    if (mode === "world" && mapInstance.current) {
+      mapInstance.current.setView([15, 10], 2);
+    } else if (mapInstance.current) {
+      mapInstance.current.setView([23.63, -102.55], 5);
+    }
   }, [mode]);
 
   return (
