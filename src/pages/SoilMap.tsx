@@ -551,7 +551,7 @@ const SoilMap = () => {
             )
           ) : null}
 
-          {mode === "soil" && hasMunicipalData
+          {mode !== "world" && (mode === "soil" && hasMunicipalData
             ? (results as any[]).map((r) => (
                 <div key={`${r.municipio}-${r.estado}`} className="flex items-center gap-2 py-1">
                   <span
@@ -591,10 +591,10 @@ const SoilMap = () => {
                   <span className="text-foreground text-[11px] font-body flex-1">{r.nombre}</span>
                   <span className="text-muted-foreground text-[10px] font-body">{r.porcentaje}%</span>
                 </div>
-              ))}
+              )))}
           <p className="text-muted-foreground text-[9px] font-body mt-2 border-t border-border pt-1">
-            Fuente: INEGI · Edafología Serie II
-            {hasMunicipalData && " · Compendio Municipal 2010"}
+            {mode === "world" ? "Fuente: WRB · Atlas Mundial de Suelos (FAO)" : "Fuente: INEGI · Edafología Serie II"}
+            {hasMunicipalData && mode !== "world" && " · Compendio Municipal 2010"}
           </p>
         </div>
       )}
