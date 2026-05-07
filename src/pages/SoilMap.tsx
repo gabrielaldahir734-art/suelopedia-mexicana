@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { ArrowLeft, Search, Loader2, MapPin, Layers, Info } from "lucide-react";
+import { ArrowLeft, Search, Loader2, MapPin, Layers, Info, Globe } from "lucide-react";
 import {
   SOILS_BY_STATE,
   SOIL_COLORS,
