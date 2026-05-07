@@ -446,6 +446,15 @@ const SoilMap = () => {
               <MapPin className="w-3 h-3 inline mr-1" />
               Por estado
             </button>
+            <button
+              onClick={() => setMode("world")}
+              className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-body font-semibold transition-all ${
+                mode === "world" ? "bg-accent/80 text-accent-foreground" : "text-primary-foreground/70"
+              }`}
+            >
+              <Globe className="w-3 h-3 inline mr-1" />
+              Mundial
+            </button>
           </div>
         </div>
 
