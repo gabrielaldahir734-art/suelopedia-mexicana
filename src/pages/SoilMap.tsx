@@ -16,6 +16,8 @@ import {
   getMunicipalitiesBySoilType,
   STATES_WITH_MUNICIPAL_DATA,
 } from "@/data/soilsByMunicipality";
+import { WORLD_SOILS } from "@/data/soilsByWorld";
+import { Globe } from "lucide-react";
 
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
