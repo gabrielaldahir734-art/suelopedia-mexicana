@@ -200,6 +200,53 @@ const SoilMap = () => {
     map.setView([23.63, -102.55], 5);
   }, [selectedSoil, statesGeo, munisGeo, mode]);
 
+  // World mode: render WRB soil zones as colored circles
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map || mode !== "world") return;
+
+    if (geoLayerRef.current) map.removeLayer(geoLayerRef.current);
+
+    const group = L.featureGroup();
+    const soilsToShow = selectedWorldSoil
+      ? WORLD_SOILS.filter((s) => s.codigo === selectedWorldSoil)
+      : WORLD_SOILS;
+
+    soilsToShow.forEach((soil) => {
+      const color = SOIL_COLORS[soil.codigo] || "#888";
+      soil.zonas.forEach((zona) => {
+        const marker = L.circleMarker(zona.centro, {
+          radius: selectedWorldSoil ? 14 : 9,
+          fillColor: color,
+          color: "#222",
+          weight: 1,
+          fillOpacity: 0.7,
+        });
+        marker.bindPopup(
+          `<div style="font-family:system-ui,sans-serif;max-width:220px">
+            <p style="font-weight:700;font-size:14px;margin:0 0 4px;color:${color}">${soil.nombre} (${soil.codigo})</p>
+            <p style="font-size:12px;font-weight:600;margin:0 0 2px">${zona.region}</p>
+            <p style="font-size:11px;color:#666;margin:0 0 6px"><i>${zona.bioma}</i></p>
+            <p style="font-size:11px;margin:0">${soil.descripcion}</p>
+            <p style="font-size:9px;margin:6px 0 0;color:#999">Fuente: WRB / Atlas Mundial de Suelos (FAO)</p>
+          </div>`
+        );
+        marker.addTo(group);
+      });
+    });
+
+    group.addTo(map);
+    geoLayerRef.current = group as any;
+
+    if (selectedWorldSoil) {
+      const soil = WORLD_SOILS.find((s) => s.codigo === selectedWorldSoil);
+      setResults(soil?.zonas.map((z) => ({ ...z, codigo: soil.codigo, nombre: soil.nombre })) || []);
+    } else {
+      setResults(WORLD_SOILS.map((s) => ({ codigo: s.codigo, nombre: s.nombre, totalZonas: s.zonas.length })));
+    }
+    map.setView([15, 10], 2);
+  }, [selectedWorldSoil, mode]);
+
   // Search by state — show municipalities if data available
   const handleStateSearch = () => {
     if (!stateQuery.trim()) return;
