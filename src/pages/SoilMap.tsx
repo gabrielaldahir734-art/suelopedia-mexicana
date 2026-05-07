@@ -52,6 +52,7 @@ const SoilMap = () => {
   const [results, setResults] = useState<any[]>([]);
   const [selectedState, setSelectedState] = useState("");
   const [hasMunicipalData, setHasMunicipalData] = useState(false);
+  const [selectedWorldSoil, setSelectedWorldSoil] = useState("");
 
   const soilTypes = useMemo(() => getAllSoilTypes(), []);
 
