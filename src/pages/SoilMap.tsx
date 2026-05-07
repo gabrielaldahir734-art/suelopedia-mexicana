@@ -516,6 +516,10 @@ const SoilMap = () => {
           <p className="font-body font-semibold text-foreground text-xs mb-1">
             {mode === "soil"
               ? `${SOIL_NAMES[selectedSoil]} en México`
+              : mode === "world"
+              ? selectedWorldSoil
+                ? `${WORLD_SOILS.find((s) => s.codigo === selectedWorldSoil)?.nombre} en el mundo`
+                : `Suelos del mundo (WRB · FAO)`
               : `Suelos de ${selectedState}`}
           </p>
           {hasMunicipalData && (
@@ -524,6 +528,28 @@ const SoilMap = () => {
               Datos a nivel municipal (INEGI)
             </p>
           )}
+
+          {mode === "world" ? (
+            selectedWorldSoil ? (
+              (results as any[]).map((r, i) => (
+                <div key={`${r.region}-${i}`} className="flex items-center gap-2 py-1">
+                  <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: SOIL_COLORS[r.codigo] || "#888" }} />
+                  <span className="text-foreground text-[11px] font-body flex-1 leading-tight">
+                    {r.region}
+                    <span className="text-muted-foreground text-[9px] block">{r.bioma}</span>
+                  </span>
+                </div>
+              ))
+            ) : (
+              (results as any[]).map((r) => (
+                <div key={r.codigo} className="flex items-center gap-2 py-1">
+                  <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: SOIL_COLORS[r.codigo] || "#888" }} />
+                  <span className="text-foreground text-[11px] font-body flex-1">{r.nombre}</span>
+                  <span className="text-muted-foreground text-[10px] font-body">{r.totalZonas} zonas</span>
+                </div>
+              ))
+            )
+          ) : null}
 
           {mode === "soil" && hasMunicipalData
             ? (results as any[]).map((r) => (
