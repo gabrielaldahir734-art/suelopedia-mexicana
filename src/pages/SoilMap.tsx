@@ -34,7 +34,7 @@ const MEXICO_STATES_GEOJSON =
 const MEXICO_MUNICIPALITIES_GEOJSON =
   "https://raw.githubusercontent.com/PhantomInsights/mexico-geojson/main/national/municipalities.json";
 
-type SearchMode = "soil" | "state";
+type SearchMode = "soil" | "state" | "world";
 
 const SoilMap = () => {
   const navigate = useNavigate();
