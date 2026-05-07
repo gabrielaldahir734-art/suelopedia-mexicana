@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { ArrowLeft, Search, Loader2, MapPin, Layers, Info } from "lucide-react";
+import { ArrowLeft, Search, Loader2, MapPin, Layers, Info, Globe } from "lucide-react";
 import {
   SOILS_BY_STATE,
   SOIL_COLORS,
@@ -16,6 +16,7 @@ import {
   getMunicipalitiesBySoilType,
   STATES_WITH_MUNICIPAL_DATA,
 } from "@/data/soilsByMunicipality";
+import { WORLD_SOILS } from "@/data/soilsByWorld";
 
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
@@ -33,7 +34,7 @@ const MEXICO_STATES_GEOJSON =
 const MEXICO_MUNICIPALITIES_GEOJSON =
   "https://raw.githubusercontent.com/PhantomInsights/mexico-geojson/main/national/municipalities.json";
 
-type SearchMode = "soil" | "state";
+type SearchMode = "soil" | "state" | "world";
 
 const SoilMap = () => {
   const navigate = useNavigate();
@@ -51,6 +52,7 @@ const SoilMap = () => {
   const [results, setResults] = useState<any[]>([]);
   const [selectedState, setSelectedState] = useState("");
   const [hasMunicipalData, setHasMunicipalData] = useState(false);
+  const [selectedWorldSoil, setSelectedWorldSoil] = useState("");
 
   const soilTypes = useMemo(() => getAllSoilTypes(), []);
 
@@ -197,6 +199,53 @@ const SoilMap = () => {
     setHasMunicipalData(muniData.length > 0);
     map.setView([23.63, -102.55], 5);
   }, [selectedSoil, statesGeo, munisGeo, mode]);
+
+  // World mode: render WRB soil zones as colored circles
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map || mode !== "world") return;
+
+    if (geoLayerRef.current) map.removeLayer(geoLayerRef.current);
+
+    const group = L.featureGroup();
+    const soilsToShow = selectedWorldSoil
+      ? WORLD_SOILS.filter((s) => s.codigo === selectedWorldSoil)
+      : WORLD_SOILS;
+
+    soilsToShow.forEach((soil) => {
+      const color = SOIL_COLORS[soil.codigo] || "#888";
+      soil.zonas.forEach((zona) => {
+        const marker = L.circleMarker(zona.centro, {
+          radius: selectedWorldSoil ? 14 : 9,
+          fillColor: color,
+          color: "#222",
+          weight: 1,
+          fillOpacity: 0.7,
+        });
+        marker.bindPopup(
+          `<div style="font-family:system-ui,sans-serif;max-width:220px">
+            <p style="font-weight:700;font-size:14px;margin:0 0 4px;color:${color}">${soil.nombre} (${soil.codigo})</p>
+            <p style="font-size:12px;font-weight:600;margin:0 0 2px">${zona.region}</p>
+            <p style="font-size:11px;color:#666;margin:0 0 6px"><i>${zona.bioma}</i></p>
+            <p style="font-size:11px;margin:0">${soil.descripcion}</p>
+            <p style="font-size:9px;margin:6px 0 0;color:#999">Fuente: WRB / Atlas Mundial de Suelos (FAO)</p>
+          </div>`
+        );
+        marker.addTo(group);
+      });
+    });
+
+    group.addTo(map);
+    geoLayerRef.current = group as any;
+
+    if (selectedWorldSoil) {
+      const soil = WORLD_SOILS.find((s) => s.codigo === selectedWorldSoil);
+      setResults(soil?.zonas.map((z) => ({ ...z, codigo: soil.codigo, nombre: soil.nombre })) || []);
+    } else {
+      setResults(WORLD_SOILS.map((s) => ({ codigo: s.codigo, nombre: s.nombre, totalZonas: s.zonas.length })));
+    }
+    map.setView([15, 10], 2);
+  }, [selectedWorldSoil, mode]);
 
   // Search by state — show municipalities if data available
   const handleStateSearch = () => {
@@ -348,6 +397,12 @@ const SoilMap = () => {
     setStateQuery("");
     setSelectedState("");
     setHasMunicipalData(false);
+    setSelectedWorldSoil("");
+    if (mode === "world" && mapInstance.current) {
+      mapInstance.current.setView([15, 10], 2);
+    } else if (mapInstance.current) {
+      mapInstance.current.setView([23.63, -102.55], 5);
+    }
   }, [mode]);
 
   return (
@@ -391,6 +446,15 @@ const SoilMap = () => {
               <MapPin className="w-3 h-3 inline mr-1" />
               Por estado
             </button>
+            <button
+              onClick={() => setMode("world")}
+              className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-body font-semibold transition-all ${
+                mode === "world" ? "bg-accent/80 text-accent-foreground" : "text-primary-foreground/70"
+              }`}
+            >
+              <Globe className="w-3 h-3 inline mr-1" />
+              Mundial
+            </button>
           </div>
         </div>
 
@@ -405,6 +469,19 @@ const SoilMap = () => {
               {soilTypes.map((code) => (
                 <option key={code} value={code} className="text-foreground bg-card">
                   {SOIL_NAMES[code] || code} ({code})
+                </option>
+              ))}
+            </select>
+          ) : mode === "world" ? (
+            <select
+              value={selectedWorldSoil}
+              onChange={(e) => setSelectedWorldSoil(e.target.value)}
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-sm text-primary-foreground font-body focus:outline-none focus:ring-1 focus:ring-accent appearance-none"
+            >
+              <option value="" className="text-foreground bg-card">Todos los suelos del mundo (WRB)</option>
+              {WORLD_SOILS.map((s) => (
+                <option key={s.codigo} value={s.codigo} className="text-foreground bg-card">
+                  {s.nombre} ({s.codigo})
                 </option>
               ))}
             </select>
@@ -439,6 +516,10 @@ const SoilMap = () => {
           <p className="font-body font-semibold text-foreground text-xs mb-1">
             {mode === "soil"
               ? `${SOIL_NAMES[selectedSoil]} en México`
+              : mode === "world"
+              ? selectedWorldSoil
+                ? `${WORLD_SOILS.find((s) => s.codigo === selectedWorldSoil)?.nombre} en el mundo`
+                : `Suelos del mundo (WRB · FAO)`
               : `Suelos de ${selectedState}`}
           </p>
           {hasMunicipalData && (
@@ -448,7 +529,29 @@ const SoilMap = () => {
             </p>
           )}
 
-          {mode === "soil" && hasMunicipalData
+          {mode === "world" ? (
+            selectedWorldSoil ? (
+              (results as any[]).map((r, i) => (
+                <div key={`${r.region}-${i}`} className="flex items-center gap-2 py-1">
+                  <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: SOIL_COLORS[r.codigo] || "#888" }} />
+                  <span className="text-foreground text-[11px] font-body flex-1 leading-tight">
+                    {r.region}
+                    <span className="text-muted-foreground text-[9px] block">{r.bioma}</span>
+                  </span>
+                </div>
+              ))
+            ) : (
+              (results as any[]).map((r) => (
+                <div key={r.codigo} className="flex items-center gap-2 py-1">
+                  <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: SOIL_COLORS[r.codigo] || "#888" }} />
+                  <span className="text-foreground text-[11px] font-body flex-1">{r.nombre}</span>
+                  <span className="text-muted-foreground text-[10px] font-body">{r.totalZonas} zonas</span>
+                </div>
+              ))
+            )
+          ) : null}
+
+          {mode !== "world" && (mode === "soil" && hasMunicipalData
             ? (results as any[]).map((r) => (
                 <div key={`${r.municipio}-${r.estado}`} className="flex items-center gap-2 py-1">
                   <span
@@ -488,10 +591,10 @@ const SoilMap = () => {
                   <span className="text-foreground text-[11px] font-body flex-1">{r.nombre}</span>
                   <span className="text-muted-foreground text-[10px] font-body">{r.porcentaje}%</span>
                 </div>
-              ))}
+              )))}
           <p className="text-muted-foreground text-[9px] font-body mt-2 border-t border-border pt-1">
-            Fuente: INEGI · Edafología Serie II
-            {hasMunicipalData && " · Compendio Municipal 2010"}
+            {mode === "world" ? "Fuente: WRB · Atlas Mundial de Suelos (FAO)" : "Fuente: INEGI · Edafología Serie II"}
+            {hasMunicipalData && mode !== "world" && " · Compendio Municipal 2010"}
           </p>
         </div>
       )}
